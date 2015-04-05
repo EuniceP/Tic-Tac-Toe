@@ -1,0 +1,185 @@
+@font-face {
+  font-family: "starwars";
+  src: url("../fonts/STARWARS.woff");
+}
+body {
+  background-image: url("../img/StarWarsBackground.png");
+  color: gray;
+ }
+
+header {
+  /*font-family: "starwars";*/
+  letter-spacing: 4px;
+  text-align: center;
+  margin: auto;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  font-size: 6vw;
+  font-weight: bold;
+  width: 100%;
+  vertical-align: middle;
+  text-shadow: 
+    0 -2px 3px #FFF,
+    0 -4px 3px #AAA,
+    0 -6px 6px #666,
+    0 -8px 9px #000;
+}
+footer {
+  position:fixed;
+  left:0px;
+  bottom:0px;
+  height:30px;
+  width:100%;
+  background:#999;
+ }
+
+.container {
+  position: relative;
+  margin-top: 10px;
+  margin: auto;
+  width: 100%;
+  /*height: 50%;*/
+  text-align: center;
+}
+
+.left {
+  display: inline;
+  float: left;
+  width: 32%;
+  height: 20%;
+  margin: auto;
+}
+
+.player1 {
+  display: inline;
+  float: left;
+  margin-top: 200px;
+  margin-left: 300px;
+  border: 1px dashed gray;
+  width: 40%;
+  /*height:50%;*/
+  font-size: 3vw;
+  text-shadow: 
+    0 -2px 3px #FFF,
+    0 -4px 3px #AAA,
+    0 -6px 6px #666,
+    0 -8px 9px #000;
+  background: linear-gradient(right left, black , gray);
+  background: -webkit-linear-gradient(right left black , gray); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(right left, black, gray); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(right left, black, gray); /* For Firefox 3.6 to 15 */
+}
+.main {
+  display: inline;
+  float: left;
+  width: 33%;
+  height: 30%; 
+  margin: auto;
+  text-align: center;
+}
+.boxes{
+  margin-left: 140px;
+}
+
+.right {
+  display: inline;
+  float: right;
+  width: 32%;
+  height: 20%;
+  margin: auto;
+}
+
+.player2 {
+  display: inline;
+  float: right;
+   margin-top: 200px;
+  margin-right: 300px; 
+  border: 1px dashed gray;
+  width: 40%;
+  font-size: 3vw;
+  text-shadow: 
+    0 -2px 3px #FFF,
+    0 -4px 3px #AAA,
+    0 -6px 6px #666,
+    0 -8px 9px #000;
+  background: linear-gradient(left, right, black , gray);
+  -webkit-lbackground: inear-gradient(left, right, black , gray); /* For Safari 5.1 to 6.0 */
+  -o-linear-background: gradient(top, bottom, black, gray); /* For Opera 11.1 to 12.0 */
+  -moz-background: linear-gradient(top, bottom, black, gray); /* For Firefox 3.6 to 15 */
+}
+.box {
+  display: table;
+  background-color: black;
+  border: 2px solid white;
+  height: 9.5vw;
+  width:  9.5vw;
+  margin: 0 auto;
+  vertical-align: middle;
+  float: left;
+  opacity: 0.7;
+  /*box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);*/
+}
+ 
+.playerImg {
+  /*background-color:black;*/
+  margin: 0 auto;
+  padding: 0 auto;
+  height: 9vw;
+  width:  9vw;
+  opacity: 1;
+
+  transform: perspective(117px) rotateY(-180deg); 
+  transition-duration: 3s;
+  -webkit-transform: perspective(117px) rotateY(-180deg); 
+  -webkit-transition-duration: 3s;
+  -o-ltransform: perspective(117px) rotateY(-180deg); 
+  -o-ltransition-duration: 3s;
+  -moz-transform: perspective(117px) rotateY(-180deg); 
+  -moz-transition-duration: 1s;
+}
+   /*
+  -webkit-transform: perspective(117px) rotateY(-180deg); /* rotate on Y axis */
+  /*-webkit-transition-duration: 3s;*/
+  /*transform: perspective(117px) rotateY(-180deg); rotate on Y axis */
+  /*transition-duration: 3s;*/
+  /*transition: background-color 1s, opacity 0.2s, transform 3s; */
+
+
+.boxImg {
+  display: table;
+  position:absolute;
+  background-color:gray; 
+  height: 9.2vw;
+  width:  9.2vw;
+  vertical-align: middle;
+  opacity: .7;
+  text-align: center;
+}
+ 
+
+.message {
+  clear: both;
+  font-size: 2vw;
+  width: 100%;
+  /*height: 100px;*/
+  margin-top: 2vw;
+  vertical-align: middle;
+  opacity: .9;
+  text-align: center;
+    0 -1px 2px #FFF,
+    0 -2px 2px #AAA,
+    0 -3px 3px #666,
+    0 -4px 4px #000;
+
+}
+ 
+.playAgainButton{
+  color: gray ;
+  background-color: gray ;
+  border: 1px outset #b37d00 ;
+  width: 300px ;
+  text-decoration: none ;
+  display: block ;
+}
+
+ 

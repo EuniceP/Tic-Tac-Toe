@@ -3,90 +3,260 @@
    .module('tttApp')
    .controller('tttController', tttController);
 
-   function tttController() {
+   tttController.$inject = ['$firebaseObject','$firebaseArray'];
+ 
+   function tttController($firebaseObject, $firebaseArray) {
       // LOCAL variables
       var tc = this;
       var currentPlayer;
 
       // Global variables declaration
       // -------------------
-      tc.theme = 'Star Wars';
-      tc.dimention = 3;
+      tc.theme = 'Star Wars'; // for dynamic background change
+      tc.dimention = 3;       // default : 3X3 
       tc.imgDir = "img/";
-      tc.scoreBoard = [];  // use to scoring for the n-dimentional board - this var is abondaned
-      tc.gameBoard = [];   // keeps track of game progress - used to display on screen
-      tc.message = '';    // win/tie message
-      tc.showMessage = false; // only true when game is over
+      //tc.scoreBoard = [];  // use for the n-dimentional board for future
+      tc.gameBoard = [];   // keeps track of game progress - used to display img on screen
+      tc.message = 'waiting...';     // win/tie message at end of game
+      tc.showMessage = false; // only true when game is over to disply message
       tc.gameId = 0;      // used to identify game to join
       tc.winningCells=[]; // use to highlight winning cells at end of game
-      tc.playerName1="C-3PO";
+      tc.playerName1="C-3PO";  // default player names
       tc.playerName2="R2-D2";
-      tc.game=null;
+      tc.playerImage1="C-3PO.png";
+      tc.playerImage2="R2-D2.png";
+
+      tc.game=null;       // stores game related values
 
       // Global Fuction declaration
       // ---------------------------
       tc.selectCell = selectCell;
       tc.playAgain = playAgain;
-
-      //------------------------------
-      // Program starts here
-      // ----------------------------
-       init();
-
-
-       //---------------------------
-      // Create player and game objects
-      //---------------------------
+      tc.addPlayer = addPlayer;
+      tc.updatePlayer = updatePlayer;
+      init();
+      //------------------
+      // NEW GAME
+      // ----------------
       function init() {
-        // if new game, create blank game board, else set existing game board
-        if (tc.gameId === 0) {
-          tc.gameId = Math.floor(Math.random() * 1000); // new gameId
+         // Get database pointers for players the game board
+         // ----------------------------------------------
+        if (tc.gameId === 0) 
+          tc.gameId = Math.floor(Math.random() * 1000); 
 
-          tc.dimention = (tc.dimention || 3) ;
-          tc.theme = (tc.theme = 'Star Wars');
- 
-          tc.playerName1 = (tc.playerName1 || "C-3PO");
-          tc.playerName2 = (tc.playerName2 || "R2-D2");
+         tc.player1 = getPlayer(1); // get a pointer for the player1 database
+         tc.player2= getPlayer(2); // get a pointer for the player2 database
 
-          // Initialize player list with mascots.  
-          // Last argument is for 1-person game with a computer (autoPlay=true)
-          tc.player1 = new Player(tc.playerName1, 1, 'X',
-                               "img/"+ tc.playerName1 + ".png", false);
-          tc.player2 = new Player(tc.playerName2, 2, 'O',
-                               "img/"+ tc.playerName2 + ".png", false);
-  
-          currentPlayer = tc.player1;
+         resetPlayers();
+         currentPlayer = tc.player1;
 
-          // Initialize game board and global variables
-          tc.game  = new Game(tc.theme, tc.dimention);  
-          tc.gameBoard  = initializeGameBoard();
-          tc.scoreBoard = initializeScoreBoard();
-        }
-        // else {
-        //   getGame();
-        // }
+         tc.gameBoard = getGameBoard();
+         // run the following only once to insert data
+ //        initializeGameBoard();
+         tc.gameBoard = getGameBoard(); // pointer the game board
+         //tc.game = getGameInfo(); // pointer to the game stat database
+         tc.game = new Game(tc.theme,tc.dimention);
+        // new gameId to join
+
+        // The following will only need to be done once to create database objects
+        // ---------------------------------------------
+        // tc.player1.$add(new Player(tc.playerName1, 1, 'X', tc.playerImage1, false));
+        // tc.player2.$add(new Player(tc.playerName2, 2, 'O', tc.playerImage2, false));
+
+        // Initialize game board and global variables
+        // tc.game.$add(new Game(tc.theme, tc.dimention)); 
+        // tc.gameBoard.$add(initializeGameBoard());
+        //tc.scoreBoard.$add(initializeScoreBoard());
       }
-      
-
-
-    /*
-    // Play Again button pressed to reset the game board
-     */
-    function playAgain() {
+     /*---------------------
+     // Play Again button pressed to reset the game board
+     //--------------------*/
+     function playAgain() {
       // Reset game board
+      resetGameBoard();
+      resetPlayers();
       tc.game = new Game(tc.theme,tc.dimention);
-  //   console.log(tc.game); 
-      tc.gameBoard = null;
-      tc.gameBoard = initializeGameBoard(); //resetGameBoard();
-
       tc.message = '';
       tc.showMessage = false;
       tc.winningCells=[];
-      tc.player1.changeImage (tc.imgDir + img1 + '.png');  // Change players' mascots if desired
-      tc.player2.changeImage (tc.imgDir + img2 + '.png');
       currentPlayer = tc.player1;
       location.redraw();
+
     }
+      //--------------------- 
+      // Define player object with properties & methods:
+      //    name, image to display in cells, and initial scores
+      //-------------------
+      function Player(name,playerNum,marker,image) {
+        var p = this;
+        p.name = name;
+        p.playerNum = playerNum; // 1 or 2 
+        p.marker = marker;       // X or O   
+        p.image = image;
+        p.score = 0;
+        p.initiated = false;
+      }
+
+      function addScore(playerNum) {
+        if (playerNum === 1) {
+          tc.player1.score ++;
+          tc.player1.$save();
+        }
+        else{
+          tc.player2.score ++;
+          tc.player2.$save();
+        }
+      }
+
+       function resetPlayers() {
+         tc.player1.score = 0;
+         tc.player1.marker='X';
+         tc.player1.image = tc.imgDir+tc.playerImage1;
+         tc.player1.initialized = false;
+         tc.player1.name = tc.playerName1;
+         tc.player1.playerNum = 1;
+         tc.player2.score = 0;
+         tc.player2.marker='O';
+         tc.player2.image = tc.imgDir+tc.playerImage2;
+         tc.player2.initialized = false;
+         tc.player2.name = tc.playerName2;
+         tc.player2.playerNum = 2;
+         tc.player1.$save();
+         tc.player2.$save();
+       } 
+
+       function updatePlayer(playerNum,name,image) {
+          if (playerNum === 1) {
+            tc.player1.name = name;
+            tc.player1.image = 'img/'+image;
+            tc.player1.initialized=true;
+            tc.player1.$save();
+            tc.playerName1 = name;
+            tc.playerImage1 =  'img/'+image;
+
+          } else {
+            tc.player2.name = name;
+            tc.player2.image = 'img/'+image;
+            tc.player2.initialized=true;
+            tc.player2.$save();
+            tc.playerName2 = name;
+            tc.playerImage2 =  'img/'+image;
+          }
+         
+          console.log(tc.player1, tc.player2);
+    }
+      
+  
+      // get firebase database pointer to either player1 or player 2 data
+      function getPlayer(playerNum) {
+         var ref = new Firebase("https://tictactoe-r2d2.firebaseio.com/player1");
+         var player = $firebaseArray(ref);
+         // player.$bindTo(tc,"player1");
+         return player;
+      }
+     function getPlayer2(playerNum) {
+         var ref = new Firebase("https://tictactoe-r2d2.firebaseio.com/player2");
+         var player = $firebaseArray(ref);
+         // player.$bindTo(tc,"player2");
+         return player;
+      }
+      // get firebase database pointer to either player1 or player 2 data
+     // function getGameInfo() {
+     //      var ref =  new Firebase("https://tictactoe-r2d2.firebaseio.com/gameInfo");
+     //      var game = $firebaseObject(ref);
+     //      return game;
+     //  }
+
+      // get the game board pointer
+      function getGameBoard() {
+          var ref =  new Firebase("https://tictactoe-r2d2.firebaseio.com/gameBoard");
+          var board = $firebaseArray(ref);
+          // board.$bindTo(tc,"gameBoard");
+          return board;
+      }
+         //initialize the board to empty (zero) - players will have 1 or 2 when box selected
+      function initializeGameBoard() {
+        var rowcol; 
+        var gameBoard=[];
+        var idx = 0;
+        var temp=[];
+        for (var i=0; i< tc.dimention; i++) {
+          for (var j=0; j< tc.dimention; j++) {
+            rowcol = i.toString() + j.toString();
+            temp = { "anIndex": idx,
+                     "image"  : '',
+                     "marker" : '',   
+                     "rowcol" : rowcol, 
+                     "winningCell"  : false };
+            tc.gameBoard.$add(temp);
+            idx ++;
+             } //true when GAME won
+         }
+       return gameBoard;
+      }
+
+      // add the new players
+      function addPlayer(playerNum, playerName, newImage) {
+          var player=[];
+
+          if (playerNum === 1) {
+            if (tc.player1.length !== 0) {
+                  tc.player1.name = playerName;
+                  tc.player1.image = newImage;
+                  tc.player1.score = 0;
+                  tc.player1.initiated = true;
+                  tc.player1.$save();
+            }   
+            else {
+               tc.player1.$add(new Player(playerName1, playerNum, 'X', playerImage, true)); 
+               tc.player1.$save();
+            }
+            tc.thisPlayer = player1;
+          }
+          else {
+             if (tc.player2.length !== 0) {
+                  tc.player2.name = playerName;
+                  tc.player2.image = newImage;
+                  tc.player2.score = 0;
+                  tc.player2.initiated = true;
+                  tc.player2.$save();
+              }
+              else {
+                tc.player2.$add(new Player(playerName2, playerNum, 'O', playerImage, true)); 
+                tc.player2.$save();
+              }
+              tc.thisPlayer = player2;
+          }
+        }
+
+
+          //   .playerName = playerName;
+          //   player1.name = ((trim(playerName).length === 0)  ? imgDir+"C-3PO" : playerName);
+          //   player1.image =((trim(playerImage).length === 0) ? imgDir+"C-3PO.png" : implDir+newImage);
+          //   tc.thisPlayer = player1;
+          // }
+          // else {
+          //   player2.playerName = playerName;
+          //   player2.name = ((trim(playerName).length === 0)  ? imgDir+"R2-D2" : playerName);
+          //   player2.image =((trim(playerImage).length === 0) ? imgDir+"R2-D2.png" : implDir+newImage);
+          //   tc.playersList.$add( player2);
+          //   tc.thisPlayer = player2;
+          // }
+
+          // if (playersList.length === 0) {
+          //   tc.playersList.$add(thisPlayer);
+          //   tc.thisPlayerIdx = 0;
+          // }
+          // else if (tc.playersList.length === 1) {
+          //    if (tc.playersList[0].name === playerName) {
+          //       tc.playersList[0].image = newImage;
+          //       thisPlayerIdx = 0;
+          //     }
+          //     else {
+          //       tc.playersList.$add(thisPlayer);
+          //       thisPlayerIdx = 1;
+          //     }
+
 
     //--------------------- 
     // Define Game object with properties & methods
@@ -103,82 +273,40 @@
     }
 
     function resetGameBoard() {
-      for (i=0; i<tc.dimention;i++) {
-          tc.gameBoard.image = '';
-          tc.gameBoard.marker = '';
-          tc.gameBoard.displayImage = false;
-          tc.gameBoard.win = false;
+      for (i=0; i<tc.gameBoard.length;i++) {
+          tc.gameBoard[i].image = '';
+          tc.gameBoard[i].marker = '';
+          tc.gameBoard[i].displayImage = false;
+          tc.gameBoard[i].winnningCell = false;
+          tc.gameBoard.$save();
       }
 
-        for (i =0; i< tc.dimention ; i++) 
-          for (j =0; j <tc.dimention; j++)
-            tc.scoreBoard[i][j]='';
+        // for (i =0; i< tc.dimention ; i++) 
+        //   for (j =0; j <tc.dimention; j++)
+        //     tc.scoreBoard[i][j]='';
 
-        tc.game.backgroundImg = tc.imgDir + tc.theme.replace(' ','') + "Background.png";
+  //      tc.game.backgroundImg = tc.imgDir + tc.theme.replace(' ','') + "Background.png";
         tc.game.winner = '';
-        return tc.gameBoard;
-
-      }  
-    //initialize the board to empty (zero) - players will have 1 or 2 when box selected
-    function initializeGameBoard() {
-        var rowcol; 
-        var gameBoard=[];
-        for (var i=0; i< tc.dimention; i++) {
-          for (var j=0; j< tc.dimention; j++) {
-            rowcol = i.toString() + j.toString();
-            gameBoard.push({rowcol : rowcol, 
-                           image  : "", 
-                           class  : 'cell', 
-                           marker : '',  // filled in when player selects cell
-                           displayImage:false, //true when player selects cell
-                           win    : false }); //true when GAME won
-
-          }
-        }
-     
-        return gameBoard;
-    }
+     }  
+ 
 
     // blank score board
-    function initializeScoreBoard() {
-      var board = [];
-      var row = [];
-      // Initialize board cells in rows
-      for (var i=0; i< tc.dimention; i++) {
-         row.push('');
-      }
-      // Create two-dimentional tic-tac-toe board
-      for (i=0; i< tc.dimention; i++) {
-        board.push(row);
-      }
-      return board;
-    }
+    // function initializeScoreBoard() {
+    //   var board = [];
+    //   var row = [];
+    //   // Initialize board cells in rows
+    //   for (var i=0; i< tc.dimention; i++) {
+    //      row.push('');
+    //   }
+    //   // Create two-dimentional tic-tac-toe board
+    //   for (i=0; i< tc.dimention; i++) {
+    //     board.push(row);
+    //   }
+    //   return board;
+    // }
     
     
-    //--------------------- 
-    // Define player object with properties & methods:
-    //    name, image to display in cells, and initial scores
-    //-------------------
-    function Player(name,playerNum,marker,image,autoPlay) {
-      var p = this;
-      p.name = name;
-      p.playerNum = playerNum; // 1 or 2 
-      p.marker = marker;       // X or O   
-      p.image = image;
-      p.score = 0;
-      p.autoPlay = autoPlay;
-      
-      p.addScore = (function() {
-        p.score += 1;
-      });
-      p.resetScore = (function() {
-        p.score = 0;
-      });
-      p.changeImage = (function(img) {
-        p.image = img;
-      });
-
-    } 
+     
     /*  Called from index.html upon a box is clicked
     Checks if game is already over.  
     If not, checks the cell to ensure it's not already marked.
@@ -200,7 +328,8 @@
                   displayMessage();
                 }
                 else { 
-                  currentPlayer.addScore();
+                  
+                  addScore(currentPlayer.playerNum);
                   displayMessage();
                 }
                 
@@ -218,6 +347,7 @@
         cell.image = currentPlayer.image;
         cell.marker = currentPlayer.marker;
         cell.displayImage = true;
+        tc.gameBoard.$save();
         tc.game.cellsOccupied++ ;
         row = cell.rowcol.substr(0,1);
         col = cell.rowcol.substr(1,1);

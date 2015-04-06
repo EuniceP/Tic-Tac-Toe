@@ -1,6 +1,6 @@
 (function()  {
   angular
-    .module('tttApp',[]);
+    .module('tttApp',['firebase']);
 
 
 // console.log(document.documentElement.offsetWidth,document.documentElement.offsetHeight);

@@ -11,7 +11,9 @@ body {
   background-image: url("../img/StarWarsBackground.png");
   color: gray;
  }
-
+/*
+Game Title
+ */
 header {
   /*font-family: "starwars";*/
   letter-spacing: 4px;
@@ -64,24 +66,48 @@ ul,li {
   height: 100%;
   margin: auto;
 }
-.player {
+
+.player1, .player2 {
+  position: block;
+  margin: 0px 0px 50px 30px auto;
+  padding-left: 20px;
+  padding: 10px auto;
+  font-size: 14px;
+  font-style: bold;
+  line-height: 20px;
+  text-align: left;
+  width: 45%;
+  height: 120px;
+  border: 1px dashed white;
+  background-color: #666;
+  color: white;
+  border-radius:8%;
+}
+.player2 {
+  margin:auto;
+}
+.player1 {
   margin: auto;
-  padding: 20px;
+}
+.font14 {
+  font-size: 14px;
+  width: 100px;
+  height: 20px;
+}
+.player {
+  position: relative;
+  clear: both;
+  bottom: 0px;
+  margin: auto;
+  margin-top: 50px;
+  padding: 30px;
   text-align: center;
   border: 1px dashed gray;
   border-radius:10%;
   width: 30%;
-  font-size: 30px;
+  font-size: 24px;
   /*font-size: 3vw;*/
-
 }
-
- /*
-  background: linear-gradient(left, right, black , gray);
-  -webkit-background: inear-gradient(left, right, black , gray); *//* For Safari 5.1 to 6.0 */
-  /*-o-background: linear-gradient(top, bottom, black, gray);*/ /* For Opera 11.1 to 12.0 */
-  /*-moz-background: linear-gradient(top, bottom, black, gray); *//* For Firefox 3.6 to 15 */
-
 .main {
   /*display: inline;*/
   margin: 0 auto;
@@ -268,4 +294,140 @@ ul,li {
   -moz-transform: perspective(90px) rotateY(-180deg); 
   -moz-transition: background-color 1s, opacity 0.2s, transform 1s; ;
 }
+/*-------------------*/
+/*Flying battleship*/
+/*-----------------*/
+.spaceship {
+    /* initial position to be the center of the circle */
+    position: absolute;
+    left: 400px;
+    top: 50px;
+    opacity: .3;
+  -webkit-animation: myOrbitY 20s linear infinite; /* Chrome, Safari 5 */
+    /* animation duration, timing-function (or easing) */
+    -webkit-animation: myOrbit 20s linear infinite; /* Chrome, Safari 5 */
+       -moz-animation: myOrbit 20s linear infinite; /* Firefox 5-15 */
+         -o-animation: myOrbit 20s linear infinite; /* Opera 12+ */
+            animation: myOrbit 20s linear infinite; /* Chrome, Firefox 16+*/, 
+}
 
+@-webkit-keyframes myOrbit {
+    from { -webkit-transform: rotate(0deg) translateX(300px) rotate(0deg); }
+    to   { -webkit-transform: rotate(360deg) translateX(300px) rotate(-360deg); }
+}
+@-webkit-keyframes myOrbitY {
+    from { -webkit-transform: rotate(0deg) translateY(300px) rotate(0deg); }
+    to   { -webkit-transform: rotate(360deg) translateY(300px) rotate(-360deg); }
+}
+
+@-moz-keyframes myOrbit {
+    from { -moz-transform: rotate(0deg) translateX(300px) rotate(0deg); }
+    to   { -moz-transform: rotate(360deg) translateX(300px) rotate(-360deg); }
+}
+
+@-o-keyframes myOrbit {
+    from { -o-transform: rotate(0deg) translateX(300px) rotate(0deg); }
+    to   { -o-transform: rotate(360deg) translateX(300px) rotate(-360deg); }
+}
+
+@keyframes myOrbit {
+    from { transform: rotate(0deg) translateX(300px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(300px) rotate(-360deg); }
+}
+
+/*-----------------*/
+/*slideLeft */
+/*-----------------*/
+.slideLeft{
+  animation-name: slideLeft;
+  -webkit-animation-name: slideLeft;  
+  -moz-animation-name: slideLeft;  
+
+  animation-duration: 15s; 
+  -webkit-animation-duration: 15s;
+  -moz-animation-duration: 15s;
+
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+
+  animation-timing-function: ease-in-out; 
+  -webkit-animation-timing-function: ease-in-out;   
+  -moz--animation-timing-function: ease-in-out;   
+  opacity:.3;
+  position: float;
+  visibility: visible !important; 
+}
+.clear {
+  clear:both;
+}
+@keyframes slideLeft {
+  0% {transform: translateX(200%); }
+  50%{transform: translateX(-8%); }
+  65%{transform: translateX(4%); }
+  80%{transform: translateX(-4%); }
+  95%{transform: translateX(2%); }
+  100% {transform: translateX(0%); }
+}
+
+@-webkit-keyframes slideLeft {
+  0% {-webkit-transform: translateX(200%); }
+  50%{-webkit-transform: translateX(-8%); }
+  65%{-webkit-transform: translateX(4%); }
+  80%{-webkit-transform: translateX(-4%); }
+  95%{-webkit-transform: translateX(2%); }
+  100% {-webkit-transform: translateX(0%); }
+}
+@-moz-keyframes slideLeft {
+  0% {-moz-transform: translateX(200%); }
+  50%{-moz-transform: translateX(-8%); }
+  65%{-moz-transform: translateX(4%); }
+  80%{-moz-transform: translateX(-4%); }
+  95%{-moz-transform: translateX(2%); }
+  100% {-moz-transform: translateX(0%); }
+}
+
+.slideRight{
+  animation-name: slideRight;
+  -webkit-animation-name: slideRight; 
+
+  animation-duration: 15s; 
+  -webkit-animation-duration: 15s;
+  -moz-animation-duration: 15s;
+ 
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+
+  animation-timing-function: ease-in-out; 
+  -webkit-animation-timing-function: ease-in-out;   
+  -moz-animation-timing-function: ease-in-out;   
+  opacity: 0.3;
+  visibility: visible !important; 
+}
+
+@keyframes slideRight {
+  0% {transform: translateX(-150%); }
+  50%{transform: translateX(8%); }
+  65%{transform: translateX(-4%); }
+  80%{transform: translateX(4%); }
+  95%{transform: translateX(-2%); }
+  100% {transform: translateX(0%); }
+}
+
+@-webkit-keyframes slideRight {
+  0% {-webkit-transform: translateX(-150%); }
+  50%{-webkit-transform: translateX(8%); }
+  65%{-webkit-transform: translateX(-4%); }
+  80%{-webkit-transform: translateX(4%); }
+  95%{-webkit-transform: translateX(-2%); }
+  100% {-webkit-transform: translateX(0%); }
+}
+@-moz-keyframes slideRight {
+  0% {-moz-transform: translateX(-150%); }
+  50%{-moz-transform: translateX(8%); }
+  65%{-moz-transform: translateX(-4%); }
+  80%{-moz-transform: translateX(4%); }
+  95%{-moz-transform: translateX(-2%); }
+  100% {-moz-transform: translateX(0%); }
+}

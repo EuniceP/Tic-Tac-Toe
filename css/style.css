@@ -1,6 +1,11 @@
-@font-face {
+/*@font-face {
   font-family: "starwars";
   src: url("../fonts/STARWARS.woff");
+}*/
+html {
+  margin: 0px;
+  padding: 0px;
+  font-size: 100%;
 }
 body {
   background-image: url("../img/StarWarsBackground.png");
@@ -14,172 +19,245 @@ header {
   margin: auto;
   margin-top: 5%;
   margin-bottom: 5%;
-  font-size: 6vw;
+  font-size: 60px;
+  /*font-size: 6vw;*/
   font-weight: bold;
   width: 100%;
   vertical-align: middle;
-  text-shadow: 
-    0 -2px 3px #FFF,
-    0 -4px 3px #AAA,
-    0 -6px 6px #666,
-    0 -8px 9px #000;
 }
 footer {
   position:fixed;
   left:0px;
   bottom:0px;
+  font-size: 12px;
   height:30px;
+  /*font-size: 1vw;*/
   width:100%;
   background:#999;
  }
 
+ul,li {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
 .container {
-  position: relative;
-  margin-top: 10px;
-  margin: auto;
+  display:table;
+  margin: 0 auto;
   width: 100%;
-  /*height: 50%;*/
+  height: 100%;
   text-align: center;
 }
 
 .left {
-  display: inline;
   float: left;
-  width: 32%;
-  height: 20%;
+  width: 30%;
+  height: 100%;
   margin: auto;
-}
-
-.player1 {
-  display: inline;
-  float: left;
-  margin-top: 200px;
-  margin-left: 300px;
-  border: 1px dashed gray;
-  width: 40%;
-  /*height:50%;*/
-  font-size: 3vw;
-  text-shadow: 
-    0 -2px 3px #FFF,
-    0 -4px 3px #AAA,
-    0 -6px 6px #666,
-    0 -8px 9px #000;
-  background: linear-gradient(right left, black , gray);
-  background: -webkit-linear-gradient(right left black , gray); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(right left, black, gray); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(right left, black, gray); /* For Firefox 3.6 to 15 */
-}
-.main {
-  display: inline;
-  float: left;
-  width: 33%;
-  height: 30%; 
-  margin: auto;
-  text-align: center;
-}
-.boxes{
-  margin-left: 140px;
+  left: 0;
 }
 
 .right {
-  display: inline;
   float: right;
-  width: 32%;
-  height: 20%;
+  width: 30%;
+  height: 100%;
   margin: auto;
 }
-
-.player2 {
-  display: inline;
-  float: right;
-   margin-top: 200px;
-  margin-right: 300px; 
+.player {
+  margin: auto;
+  padding: 20px;
+  text-align: center;
   border: 1px dashed gray;
+  border-radius:10%;
+  width: 30%;
+  font-size: 30px;
+  /*font-size: 3vw;*/
+
+}
+
+ /*
+  background: linear-gradient(left, right, black , gray);
+  -webkit-background: inear-gradient(left, right, black , gray); *//* For Safari 5.1 to 6.0 */
+  /*-o-background: linear-gradient(top, bottom, black, gray);*/ /* For Opera 11.1 to 12.0 */
+  /*-moz-background: linear-gradient(top, bottom, black, gray); *//* For Firefox 3.6 to 15 */
+
+.main {
+  /*display: inline;*/
+  margin: 0 auto;
+  padding: 0 auto;
+  float: left;
   width: 40%;
-  font-size: 3vw;
-  text-shadow: 
+  height: 60%; 
+  text-align: center;
+}
+.boxes{
+  display: table;
+  width: 300px;
+  margin: auto;
+  padding: auto;
+  text-align: center;
+}
+
+.box {
+  background-color: black;
+  border: 2px solid white;
+  height:95px;
+  width: 95px;
+ /* height: 9.5vw;
+  width:  9.5vw;
+*/  margin: 0 auto;
+  padding: 0 auto;
+  vertical-align: middle;
+  float: left;
+  box-shadow: 0 0 5px rgba(128, 128, 128, .9);
+}
+
+.box:hover {
+  background-color: gray;
+}
+
+.boxImg {
+  background-color:gray; 
+  height: 93px;
+  width:  93px;
+/*  height: 9.2vw;
+  width:  9.2vw; */
+  vertical-align: middle;
+  opacity: .7;
+  text-align: center;
+} 
+.playerImg {
+  margin:  0 auto;
+  padding: 0 auto;
+  height: 92px;
+  width:  92px;
+ /* height: 9vw;
+  width:  9vw;*/
+  opacity: .9;
+}
+.info {
+ width: 100%;
+  height: 100px;
+  margin-top: 30px;
+  padding: 0 auto;
+  text-align: center;
+}
+
+.message {
+  margin: auto;
+  padding-top: auto;
+  text-align: center;
+  color: #ddd;
+}
+.message2 {
+  margin: 0 auto;
+  margin-top: 20px;
+  padding: 20px auto;
+  font-size: 24px;
+  /*font-size: 2vw;*/
+  vertical-align: middle;
+  opacity: .9;
+  text-align: center;
+}
+.playAgainButton {
+  margin: 0 auto;
+  padding: 50px auto;
+  font-size: 16px;
+  color: #ddd ;
+  font-style: bold;
+  background-color: #666 ;
+  border: 2px outset #aaa ;
+  width: 120px ;
+  height: 40px;
+  border-radius:10%;
+  text-decoration: none ;
+  vertical-align: middle;
+}
+.playAgainButton:hover {
+  opacity: .7;
+  color: white;
+}
+.font3D {
+   text-shadow: 
     0 -2px 3px #FFF,
     0 -4px 3px #AAA,
     0 -6px 6px #666,
     0 -8px 9px #000;
-  background: linear-gradient(left, right, black , gray);
-  -webkit-lbackground: inear-gradient(left, right, black , gray); /* For Safari 5.1 to 6.0 */
-  -o-linear-background: gradient(top, bottom, black, gray); /* For Opera 11.1 to 12.0 */
-  -moz-background: linear-gradient(top, bottom, black, gray); /* For Firefox 3.6 to 15 */
 }
-.box {
-  display: table;
-  background-color: black;
-  border: 2px solid white;
-  height: 9.5vw;
-  width:  9.5vw;
-  margin: 0 auto;
-  vertical-align: middle;
-  float: left;
-  opacity: 0.7;
-  /*box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);*/
-}
- 
-.playerImg {
-  /*background-color:black;*/
-  margin: 0 auto;
-  padding: 0 auto;
-  height: 9vw;
-  width:  9vw;
-  opacity: 1;
-
-  transform: perspective(117px) rotateY(-180deg); 
-  transition-duration: 3s;
-  -webkit-transform: perspective(117px) rotateY(-180deg); 
-  -webkit-transition-duration: 3s;
-  -o-ltransform: perspective(117px) rotateY(-180deg); 
-  -o-ltransition-duration: 3s;
-  -moz-transform: perspective(117px) rotateY(-180deg); 
-  -moz-transition-duration: 1s;
-}
-   /*
-  -webkit-transform: perspective(117px) rotateY(-180deg); /* rotate on Y axis */
-  /*-webkit-transition-duration: 3s;*/
-  /*transform: perspective(117px) rotateY(-180deg); rotate on Y axis */
-  /*transition-duration: 3s;*/
-  /*transition: background-color 1s, opacity 0.2s, transform 3s; */
-
-
-.boxImg {
-  display: table;
-  position:absolute;
-  background-color:gray; 
-  height: 9.2vw;
-  width:  9.2vw;
-  vertical-align: middle;
-  opacity: .7;
-  text-align: center;
-}
- 
-
-.message {
-  clear: both;
-  font-size: 2vw;
-  width: 100%;
-  /*height: 100px;*/
-  margin-top: 2vw;
-  vertical-align: middle;
-  opacity: .9;
-  text-align: center;
+.fontShadow {
+   text-shadow: 
     0 -1px 2px #FFF,
-    0 -2px 2px #AAA,
-    0 -3px 3px #666,
-    0 -4px 4px #000;
-
-}
+    0 -3px 3px #666;
+  }
+/*----------------
+    ANIMATION
+---------------*/
  
-.playAgainButton{
-  color: gray ;
-  background-color: gray ;
-  border: 1px outset #b37d00 ;
-  width: 300px ;
-  text-decoration: none ;
-  display: block ;
+.rotateY {
+  animation-name:rotateY;
+  animation-duration:1s;
+  /*animation-timing-function: ease-in-out; */
+  animation-iteration:1;
+  -webkit-animation-name:rotateY;
+  -webkit-animation-duration:1s;
+  /*-webkit-animation-timing-function: ease-in-out;   */
+  -webkit-animation-iteration:1;
+  -moz-animation-name:rotateY;
+  -moz-animation-duration:1s;
+  /*-moz-animation-timing-function: ease-in-out;   */
+  -moz-animation-iteration:1;
+  -o-animation-name:rotateY;
+  -o-animation-duration:1s;
+  /*-o-animation-timing-function: ease-in-out;   */
+  -o-animation-iteration:1;
+}
+@keyframes rotateY {
+    0% {transform: perspective(400px) rotateY(0deg); }
+    50% {transform: perspective(400px) rotateY(-90deg); }
+    100% {transform: perspective(400px) rotateY(-180deg); }
+}
+@-webkit-keyframes rotateY {
+    0% {-webkit-transform: perspective(400px) rotateY(0deg); }
+    50% {-webkit-transform: perspective(400px) rotateY(-90deg); }
+    100% {-webkit-transform: perspective(400px) rotateY(-180deg); }
+}
+@-moz-keyframes rotateY {
+    0% {-moz-transform: perspective(400px) rotateY(0deg); }
+    50% {-moz-transform: perspective(400px) rotateY(-90deg); }
+    100% {-moz-transform: perspective(400px) rotateY(180deg); }
+}
+@-o-keyframes rotateY {
+    0% {-o-transform: perspective(400px) rotateY(0deg); }
+    50% {-o-transform: perspective(400px) rotateY(-90deg); }
+    100% {-o-transform: perspective(400px) rotateY(180deg); }
 }
 
  
+@keyframes blinker {
+  from { opacity: 1.0; }
+  to { opacity: 0.0; }
+}
+@-webkit-keyframes blinker {  
+  from { opacity: 1.0; }
+  to { opacity: 0.0; }
+}
+
+.blinker {
+  -webkit-animation-name: blinker;  
+  -webkit-animation-iteration-count: 3;  
+  -webkit-animation-timing-function: cubic-bezier(.5, 0, 1, 1);
+  -webkit-animation-duration: 1s; 
+}  
+
+.rotateImg {
+  transform: perspective(90px) rotateY(-180deg); 
+  transition: background-color 1s, opacity 0.2s, transform 1s; 
+  -webkit-transform: perspective(90px) rotateY(-180deg); 
+  -webkit-transition: background-color 1s, opacity 0.2s, transform 1s; 
+  -o-transform: perspective(90px) rotateY(-180deg); 
+  -o-transition: background-color 1s, opacity 0.2s, transform 1s; 
+  -moz-transform: perspective(90px) rotateY(-180deg); 
+  -moz-transition: background-color 1s, opacity 0.2s, transform 1s; ;
+}
+

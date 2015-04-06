@@ -3,17 +3,6 @@
    .module('tttApp')
    .controller('tttController', tttController);
 
-// .directive('backImg', function(){
-//     return function(scope, element, attrs){
-//         attrs.$observe('backImg', function(value) {
-//             element.css({
-//                 'background-image': 'url('img/'+ value +')',
-//                 'background-size' : 'cover'
-//             });
-//         });
-//     };
-// });
-// 
    function tttController() {
       var tc = this;
       tc.theme = 'Star Wars';
@@ -31,9 +20,11 @@
       tc.playAgain = playAgain;
       tc.game    = new Game(tc.theme, tc.dimention);
       tc.player1 = new Player("C-3PO", 1, 'X', "img/C-3PO.png", false);
-      tc.player2 = new Player('R2D2',  2, 'O', "img/R2D2.png",  true); 
+      tc.player2 = new Player('R2-D2',  2, 'O', "img/R2D2.png",  true); 
       currentPlayer = tc.player1;
     
+  //  tc.rotate= function(angle) {tc.angle=angle; };
+     
     function playAgain() {
       tc.dimention = 3;
       tc.message = '';
@@ -46,6 +37,7 @@
       //tc.player2.changeImage (newImg);
       //    tc.theme = 'Star Wars';
     }
+
     function Game(theme, dimention) {
       var g = this;
       g.cellsOccupied = 0;
@@ -173,19 +165,16 @@
             if (i===row && j===col)
               tc.scoreBoard[row][col] = currentPlayer.marker;
           }
-    console.log(tc.scoreBoard);      
-        
     }
 
     function switchPlayer() {
       currentPlayer = ((currentPlayer.playerNum === 1) ? tc.player2 : tc.player1); 
-      console.log(tc.currentPlayer);
     }
 
     function displayMessage() {
       tc.message = "Game Over. " + 
-                  ((tc.winner === 'Tie') ? "Game is tied." :
-                                         "Winner is " + tc.winner + "!");
+                  ((tc.winner === 'Tie') ? "We have a tie!  Play again!" :
+                                          tc.winner + " wins!!!");
       tc.showMessage = true;
     }
     
@@ -344,7 +333,7 @@
             return currentPlayer.name; 
         }
         else if ((tc.winningCells.length === 0) && (isGameTie()))
-          return 'tie'; // game is tied
+          return 'Tie'; // game is tied
         else return ''; // no winner yet
     }
 

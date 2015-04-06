@@ -20,7 +20,7 @@
   <table class="container">
     <tr>
       <td class="left">
-        <ul class="player font3D">
+        <ul class="player font3D boxShadow">
           <li>{{ttt.player1.name}}</li><br><li>{{ttt.player1.score}}</li>
         </ul>
       </td>
@@ -28,7 +28,7 @@
         
           <table class="boxes">
             <tr>
-            <td class="box" ng-repeat="cell in ttt.gameBoard track by $index" >
+            <td class="box boxShadow" ng-repeat="cell in ttt.gameBoard track by $index" >
               <div class="boxImg" ng-click="ttt.selectCell(cell)" > 
                 <!-- <span class="rotateY"> -->
                   <img class="playerImg rotateY" ng-show="cell.displayImage" ng-src={{cell.image}}>
@@ -42,7 +42,9 @@
         <table class="info">
             <tr class="message">
               <td >
-                <input class="playAgainButton" type="submit" ng-submit="ttt.playAgain()" value="Play Again!"></input>
+                <form ng-submit="ttt.playAgain()">
+                  <input type="submit" class="playAgainButton buttonShadow" value="Play Again!"></input>
+                </form>
               </td>
             </tr> <tr>
               <td class="message2 fontShadow">
@@ -53,7 +55,7 @@
       </td>
 
       <td class="right">
-         <ul class="player fontShadow">
+         <ul class="player font3D boxShadow">
           <li>{{ttt.player2.name}}</li><br><li>{{ttt.player2.score}}</li>
         </ul>
       </td>

@@ -170,13 +170,19 @@ ul,li {
   border: 2px outset #aaa ;
   width: 120px ;
   height: 40px;
-  border-radius:10%;
+  border-radius:8%;
   text-decoration: none ;
   vertical-align: middle;
 }
 .playAgainButton:hover {
   opacity: .7;
   color: white;
+}
+.boxShadow {
+  box-shadow: 6px 6px 3px #888888;
+}
+.buttonShadow {
+  box-shadow: 1px 1px 1px #888888;
 }
 .font3D {
    text-shadow: 

@@ -3,294 +3,240 @@
    .module('tttApp')
    .controller('tttController', tttController);
 
+   // Inject firebase database
    tttController.$inject = ['$firebaseObject','$firebaseArray'];
  
+   // Angular Main Controller Function with Firebase database 
    function tttController($firebaseObject, $firebaseArray) {
       // LOCAL variables
       var tc = this;
-      var currentPlayer;
+      var currentPlayer = [];
+      var selfPlayer = [];
+      var gameURL = "https://tictactoe-r2d2.firebaseio.com/";
+      var image1='img/C-3PO.png';
+      var name1='C-3PO';
+      var score1=0;
+      var image2='img/R2-D2.png';
+      var name2='R2-D2';
+      var score2=0;
 
       // Global variables declaration
       // -------------------
       tc.theme = 'Star Wars'; // for dynamic background change
       tc.dimention = 3;       // default : 3X3 
       tc.imgDir = "img/";
-      //tc.scoreBoard = [];  // use for the n-dimentional board for future
-      tc.gameBoard = [];   // keeps track of game progress - used to display img on screen
-      tc.message = 'waiting...';     // win/tie message at end of game
-      tc.showMessage = false; // only true when game is over to disply message
+      tc.message = '';     // win/tie message at end of game
+      //tc.showMessage = false; // only true when game is over to disply message
       tc.gameId = 0;      // used to identify game to join
-      tc.winningCells=[]; // use to highlight winning cells at end of game
-      tc.playerName1="C-3PO";  // default player names
-      tc.playerName2="R2-D2";
-      tc.playerImage1="C-3PO.png";
-      tc.playerImage2="R2-D2.png";
-
-      tc.game=null;       // stores game related values
-
+      tc.ttt='';  // Points to https://tictactoe-r2d2.firebaseio.com/gameId
+      tc.gameIdInfo = "";
+      
       // Global Fuction declaration
       // ---------------------------
       tc.selectCell = selectCell;
       tc.playAgain = playAgain;
-      tc.addPlayer = addPlayer;
       tc.updatePlayer = updatePlayer;
-      init();
+      tc.newGame = newGame;
+      tc.joinGame = joinGame;
+
+
       //------------------
-      // NEW GAME
-      // ----------------
-      function init() {
-         // Get database pointers for players the game board
-         // ----------------------------------------------
-        if (tc.gameId === 0) 
-          tc.gameId = Math.floor(Math.random() * 1000); 
+      // Program starts here / NEW GAME
+      // -----------------
+      newGame();
 
-         tc.player1 = getPlayer(1); // get a pointer for the player1 database
-         tc.player2= getPlayer(2); // get a pointer for the player2 database
+       // ---------------------------------------------- 
+      // Get database pointers for game board & players
+      // ---------------------------------------------- 
+      function newGame() {
+        // Use the gameId to join game
+        tc.gameId = Math.floor(Math.random() * 10000 );  
+        
+        initializeGame(name1,image1,score1,name2,image2,score2); // pointer to the game board
+        
+        tc.ttt.game[0].gameId = tc.gameId;
+        tc.ttt.game[0].message = 'waiting...';
+        tc.ttt.$save(tc.ttt.game);
+        
+        tc.showMessage = true;
 
-         resetPlayers();
-         currentPlayer = tc.player1;
-
-         tc.gameBoard = getGameBoard();
-         // run the following only once to insert data
- //        initializeGameBoard();
-         tc.gameBoard = getGameBoard(); // pointer the game board
-         //tc.game = getGameInfo(); // pointer to the game stat database
-         tc.game = new Game(tc.theme,tc.dimention);
-        // new gameId to join
-
-        // The following will only need to be done once to create database objects
-        // ---------------------------------------------
-        // tc.player1.$add(new Player(tc.playerName1, 1, 'X', tc.playerImage1, false));
-        // tc.player2.$add(new Player(tc.playerName2, 2, 'O', tc.playerImage2, false));
-
-        // Initialize game board and global variables
-        // tc.game.$add(new Game(tc.theme, tc.dimention)); 
-        // tc.gameBoard.$add(initializeGameBoard());
-        //tc.scoreBoard.$add(initializeScoreBoard());
+        selfPlayer = tc.ttt.player1[0];
+        currentPlayer = tc.ttt.player1[0];
       }
+
+      // ---------------------------------------------- 
+      // Join game
+      // ---------------------------------------------- 
+      function joinGame() {
+        tc.gameId = prompt("Please enter the game ID to join.");
+        initializeGame(name1,image1,score1,name2,image2,score2);
+        tc.ttt.game[0].message = 'Game On';
+        tc.ttt.game[0].gameId = tc.gameId;
+        tc.ttt.$save(tc.ttt.game);
+        selfPlayer = tc.ttt.player2[0];
+        currentPlayer = tc.ttt.player2[0];
+      }
+
      /*---------------------
      // Play Again button pressed to reset the game board
      //--------------------*/
      function playAgain() {
-      // Reset game board
-      resetGameBoard();
-      resetPlayers();
-      tc.game = new Game(tc.theme,tc.dimention);
-      tc.message = '';
-      tc.showMessage = false;
-      tc.winningCells=[];
-      currentPlayer = tc.player1;
-      location.redraw();
+        // Reset game board , players, game variables
+        // Game variables
+        initializeGame(name1,image1,score1,name2,image2,score2);
+        selfPlayer = tc.ttt.player2[0];
+        currentPlayer = tc.ttt.player1[0];
+        // location.redraw();
+     }
 
-    }
-      //--------------------- 
-      // Define player object with properties & methods:
-      //    name, image to display in cells, and initial scores
-      //-------------------
-      function Player(name,playerNum,marker,image) {
-        var p = this;
-        p.name = name;
-        p.playerNum = playerNum; // 1 or 2 
-        p.marker = marker;       // X or O   
-        p.image = image;
-        p.score = 0;
-        p.initiated = false;
+      /*  Called from index.html upon a box is clicked
+      Checks if game is already over.  
+      If not, checks the cell to ensure it's not already marked.
+      Mark the cell and determine if it's a winning combination.  
+      If no win, continue playing - switch currentPlayer
+      If there is a winner, display the message and raise the score
+       */
+      function selectCell($index) {
+        // perform only if winner is not found yet
+         if (!tc.ttt.game[0].winner ) {
+            if (emptyCell($index)) {
+                markCell ($index);
+                tc.ttt.game[0].winner = getWinner(); 
+                
+                if (!tc.ttt.game[0].winner)  // no winner
+                  switchPlayer();
+                else {
+                  if(tc.ttt.game[0].winner === 'Tie') {
+                    displayMessage();
+                  }
+                  else { 
+                    addScore(currentPlayer.playerNum);
+                    displayMessage();
+                  }
+                }
+            }
+         }
+      }  
+
+      function markCell($index) {
+        var cell = tc.ttt.board[$index];
+        tc.ttt.board[$index].image = selfPlayer.image;
+        tc.ttt.board[$index].marker = selfPlayer.marker;
+        tc.ttt.board[$index].displayImage = true;
+        tc.ttt.game[0].cellsOccupied++ ;
+        tc.ttt.$save(tc.ttt.board[$index]);
+        tc.ttt.$save(tc.ttt.game);
+        //mark w dimentional score board with the player marker (for future nXn board)
+        // var r = cell.rowcol.substr(0,1);
+        // var c = cell.rowcol.substr(1,1);
+        // tc.scoreBoard[row][col] = currentPlayer.marker;
       }
 
       function addScore(playerNum) {
         if (playerNum === 1) {
-          tc.player1.score ++;
-          tc.player1.$save();
+           tc.ttt.player1[0].score ++;
+           tc.ttt.$save(tc.ttt.player1);
         }
         else{
-          tc.player2.score ++;
-          tc.player2.$save();
+          tc.ttt.player2[0].score ++;
+          tc.ttt.$save(tc.ttt.player2);
         }
       }
 
-       function resetPlayers() {
-         tc.player1.score = 0;
-         tc.player1.marker='X';
-         tc.player1.image = tc.imgDir+tc.playerImage1;
-         tc.player1.initialized = false;
-         tc.player1.name = tc.playerName1;
-         tc.player1.playerNum = 1;
-         tc.player2.score = 0;
-         tc.player2.marker='O';
-         tc.player2.image = tc.imgDir+tc.playerImage2;
-         tc.player2.initialized = false;
-         tc.player2.name = tc.playerName2;
-         tc.player2.playerNum = 2;
-         tc.player1.$save();
-         tc.player2.$save();
-       } 
+      function updatePlayer(playerNum,name,image) {
 
-       function updatePlayer(playerNum,name,image) {
           if (playerNum === 1) {
-            tc.player1.name = name;
-            tc.player1.image = 'img/'+image;
-            tc.player1.initialized=true;
-            tc.player1.$save();
-            tc.playerName1 = name;
-            tc.playerImage1 =  'img/'+image;
-
+            tc.ttt.player1[0].name = name;
+            tc.ttt.player1[0].image = tc.imgDir+image;
+            tc.ttt.player1[0].initiated=true;
+            tc.ttt.$save(tc.ttt.player1);
           } else {
-            tc.player2.name = name;
-            tc.player2.image = 'img/'+image;
-            tc.player2.initialized=true;
-            tc.player2.$save();
-            tc.playerName2 = name;
-            tc.playerImage2 =  'img/'+image;
+            tc.ttt.player2[0].name = name;
+            tc.ttt.player2[0].image = tc.imgDir+image;
+            tc.ttt.player2[0].initiated=true;
+            tc.ttt.$save(tc.ttt.player2);
           }
-         
-          console.log(tc.player1, tc.player2);
-    }
-      
-  
-      // get firebase database pointer to either player1 or player 2 data
-      function getPlayer(playerNum) {
-         var ref = new Firebase("https://tictactoe-r2d2.firebaseio.com/player1");
-         var player = $firebaseArray(ref);
-         // player.$bindTo(tc,"player1");
-         return player;
-      }
-     function getPlayer2(playerNum) {
-         var ref = new Firebase("https://tictactoe-r2d2.firebaseio.com/player2");
-         var player = $firebaseArray(ref);
-         // player.$bindTo(tc,"player2");
-         return player;
-      }
-      // get firebase database pointer to either player1 or player 2 data
-     // function getGameInfo() {
-     //      var ref =  new Firebase("https://tictactoe-r2d2.firebaseio.com/gameInfo");
-     //      var game = $firebaseObject(ref);
-     //      return game;
-     //  }
-
-      // get the game board pointer
-      function getGameBoard() {
-          var ref =  new Firebase("https://tictactoe-r2d2.firebaseio.com/gameBoard");
-          var board = $firebaseArray(ref);
-          // board.$bindTo(tc,"gameBoard");
-          return board;
-      }
-         //initialize the board to empty (zero) - players will have 1 or 2 when box selected
-      function initializeGameBoard() {
-        var rowcol; 
-        var gameBoard=[];
-        var idx = 0;
-        var temp=[];
-        for (var i=0; i< tc.dimention; i++) {
-          for (var j=0; j< tc.dimention; j++) {
-            rowcol = i.toString() + j.toString();
-            temp = { "anIndex": idx,
-                     "image"  : '',
-                     "marker" : '',   
-                     "rowcol" : rowcol, 
-                     "winningCell"  : false };
-            tc.gameBoard.$add(temp);
-            idx ++;
-             } //true when GAME won
-         }
-       return gameBoard;
       }
 
-      // add the new players
-      function addPlayer(playerNum, playerName, newImage) {
-          var player=[];
+      function resetGame() {
+        var URL = "https://tictactoe-r2d2.firebaseio.com/" + tc.gameId;
+        var ref =  new Firebase(URL);
+         tc.ttt = $firebaseObject(ref);
 
-          if (playerNum === 1) {
-            if (tc.player1.length !== 0) {
-                  tc.player1.name = playerName;
-                  tc.player1.image = newImage;
-                  tc.player1.score = 0;
-                  tc.player1.initiated = true;
-                  tc.player1.$save();
-            }   
-            else {
-               tc.player1.$add(new Player(playerName1, playerNum, 'X', playerImage, true)); 
-               tc.player1.$save();
-            }
-            tc.thisPlayer = player1;
-          }
-          else {
-             if (tc.player2.length !== 0) {
-                  tc.player2.name = playerName;
-                  tc.player2.image = newImage;
-                  tc.player2.score = 0;
-                  tc.player2.initiated = true;
-                  tc.player2.$save();
-              }
-              else {
-                tc.player2.$add(new Player(playerName2, playerNum, 'O', playerImage, true)); 
-                tc.player2.$save();
-              }
-              tc.thisPlayer = player2;
-          }
-        }
-
-
-          //   .playerName = playerName;
-          //   player1.name = ((trim(playerName).length === 0)  ? imgDir+"C-3PO" : playerName);
-          //   player1.image =((trim(playerImage).length === 0) ? imgDir+"C-3PO.png" : implDir+newImage);
-          //   tc.thisPlayer = player1;
-          // }
-          // else {
-          //   player2.playerName = playerName;
-          //   player2.name = ((trim(playerName).length === 0)  ? imgDir+"R2-D2" : playerName);
-          //   player2.image =((trim(playerImage).length === 0) ? imgDir+"R2-D2.png" : implDir+newImage);
-          //   tc.playersList.$add( player2);
-          //   tc.thisPlayer = player2;
-          // }
-
-          // if (playersList.length === 0) {
-          //   tc.playersList.$add(thisPlayer);
-          //   tc.thisPlayerIdx = 0;
-          // }
-          // else if (tc.playersList.length === 1) {
-          //    if (tc.playersList[0].name === playerName) {
-          //       tc.playersList[0].image = newImage;
-          //       thisPlayerIdx = 0;
-          //     }
-          //     else {
-          //       tc.playersList.$add(thisPlayer);
-          //       thisPlayerIdx = 1;
-          //     }
-
-
-    //--------------------- 
-    // Define Game object with properties & methods
-    //--------------------- 
-    function Game(theme, dimention) {
-      var g = this;
-      g.cellsOccupied = 0;
-      g.theme = theme;
-      g.dimention = dimention;
-      g.maxCells  = dimention * dimention;
-      // background image is modified dynamically
-      g.backgroundImg = tc.imgDir + g.theme.replace(' ','') + "Background.png";
-      g.winner = '';
-    }
-
-    function resetGameBoard() {
-      for (i=0; i<tc.gameBoard.length;i++) {
-          tc.gameBoard[i].image = '';
-          tc.gameBoard[i].marker = '';
-          tc.gameBoard[i].displayImage = false;
-          tc.gameBoard[i].winnningCell = false;
-          tc.gameBoard.$save();
-      }
-
-        // for (i =0; i< tc.dimention ; i++) 
-        //   for (j =0; j <tc.dimention; j++)
-        //     tc.scoreBoard[i][j]='';
-
-  //      tc.game.backgroundImg = tc.imgDir + tc.theme.replace(' ','') + "Background.png";
-        tc.game.winner = '';
-     }  
+          // 3X3 GAME BOARD
+          tc.ttt.board = [
+                {"aRowCol": "00", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "01", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "02", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "10", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "11", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "12", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "20", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "21", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "22", "image": '', "marker": '',"winningCell": false }
+                ];
+        tc.ttt.$save(tc.ttt.board);
+               //Game variables        
+        tc.ttt.game = [ { "cellsOccupied": 0,   "theme" : "Star Wars",
+                          "dimention" : 3,      "game"  : "img/StarWarsBackground.png",
+                          "winner" : '',    "message": "",  "gameId": tc.gameId} ];
+        tc.ttt.$save(tc.ttt.game);
  
+      }
+      //----------------------------------
+      //Get game board pointer and initialize data
+      //----------------------------------
+      function initializeGame(name1,image1,score1,name2,image2,score2) {
+        var rowcol; 
+        var idx = 0;
+        var URL = "https://tictactoe-r2d2.firebaseio.com/" + tc.gameId;
+        var ref =  new Firebase(URL);
+         tc.ttt = $firebaseObject(ref);
 
-    // blank score board
+          // 3X3 GAME BOARD
+          tc.ttt.board = [
+                {"aRowCol": "00", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "01", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "02", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "10", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "11", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "12", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "20", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "21", "image": '', "marker": '',"winningCell": false },
+                {"aRowCol": "22", "image": '', "marker": '',"winningCell": false }
+                ];
+        tc.ttt.$save(tc.ttt.board);
+
+        //Game variables        
+        tc.ttt.game = [ { "cellsOccupied": 0,   "theme" : "Star Wars",
+                          "dimention" : 3,      "game"  : "img/StarWarsBackground.png",
+                          "winner" : '',    "message": "",  "gameId": tc.gameId} ];
+        tc.ttt.$save(tc.ttt.game);
+ 
+        // Player 1 info
+        tc.ttt.player1 = [ { "autoPlay" : false,  
+                  "currentPlayer" : true,
+                  "image" : image1,
+                  "initiated" : true,
+                  "marker" : 'X',
+                  "name" : name1,  
+                  "playerNum" : 1,  
+                  "score" : score1 } ];
+        tc.ttt.$save(tc.ttt.player1);
+
+        tc.ttt.player2 = [{ "autoPlay" : false,  
+                  "currentPlayer" : false,
+                  "image" : image2,
+                  "initiated" : false,
+                  "marker" : 'O',
+                  "name" : name2,  
+                  "playerNum" : 2,  
+                  "score" : score2
+                }];         
+        tc.ttt.$save(tc.ttt.player2);
+    }
+
+    // Initialize blank score board - for future nXn board
     // function initializeScoreBoard() {
     //   var board = [];
     //   var row = [];
@@ -305,69 +251,27 @@
     //   return board;
     // }
     
-    
-     
-    /*  Called from index.html upon a box is clicked
-    Checks if game is already over.  
-    If not, checks the cell to ensure it's not already marked.
-    Mark the cell and determine if it's a winning combination.  
-    If no win, continue playing - switch currentPlayer
-    If there is a winner, display the message and raise the score
-     */
-    function selectCell(cell) {
-      // perform only if winner is not found yet
-      if (!tc.game.winner) {
-          if (emptyCell(cell)) {
-              markCell (cell);
-              tc.game.winner = getWinner(); 
-              
-              if (!tc.game.winner)  // no winner
-                switchPlayer();
-              else {
-                if(tc.game.winner === 'Tie') {
-                  displayMessage();
-                }
-                else { 
-                  
-                  addScore(currentPlayer.playerNum);
-                  displayMessage();
-                }
-                
-              }
-          }
-        }
-    }
     //Check if cell is already occupid
-    function emptyCell(cell) {
-      return (cell.marker==='');
+    function emptyCell(index) {
+      return (tc.ttt.board[index].marker==='');
     }
-    // Mak the cell with the currentplayer's marker
-    // --> This to be examined later for the score board!
-    function markCell(cell,row,col) {
-        cell.image = currentPlayer.image;
-        cell.marker = currentPlayer.marker;
-        cell.displayImage = true;
-        tc.gameBoard.$save();
-        tc.game.cellsOccupied++ ;
-        row = cell.rowcol.substr(0,1);
-        col = cell.rowcol.substr(1,1);
-        //mark w dimentional score board with the player marker
-        // tc.scoreBoard[row][col] = currentPlayer.marker;
-    }
+
     // Next player's turn
     function switchPlayer() {
-      currentPlayer = ((currentPlayer.playerNum === 1) ? tc.player2 : tc.player1); 
+      currentPlayer = ((currentPlayer.playerNum === 1) ? tc.ttt.player2[0] : tc.ttt.player1[0]); 
     }
     // Display either win or tie on screen
     function displayMessage() {
-      tc.message = "Game Over. " + 
-                  ((tc.game.winner === 'Tie') ? "We have a tie!  Try again!" :
-                                          tc.game.winner + " wins!");
+      tc.ttt.game[0].message = "Game Over. " + 
+                  ((tc.ttt.game[0].winner === 'Tie') ? "We have a tie!  Try again!" :
+                                          tc.ttt.game[0].winner + " wins!");
+      tc.ttt.$save(tc.ttt.game);
+      //alert(tc.ttt.game[0].message);
       tc.showMessage = true;
     }
     // check if the board is filled but no winner
     function isGameTie() {
-      if (tc.game.cellsOccupied === tc.game.maxCells) 
+      if (tc.ttt.game[0].cellsOccupied === tc.ttt.game[0].dimention * tc.ttt.game[0].dimention) 
         return true;
       else return false;
     }
@@ -412,7 +316,7 @@
         else
           return false;
       }
-    }
+   }
     // check top right corner to bottom left
    function winnerInDiag2(board) {
       var winningCells = [];
@@ -423,80 +327,106 @@
           return false;
       }
       return winningCells;
-    }
+   }
 
     // Determine if there is any row, column or diagonal line has a winner.
     // If so return the winner (1 or 2).  If not, returns 0 (no winner).
     // 0 1 2
     // 3 4 5
     // 6 7 8
-    function getWinner() {
-  
-      if  ((tc.gameBoard[0].marker === tc.gameBoard[1].marker ) &&
-           (tc.gameBoard[0].marker === tc.gameBoard[2].marker ) &&
-           (tc.gameBoard[0].marker !== '') ) {
-          tc.winningCells.push(0);
-          tc.winningCells.push(1);
-          tc.winningCells.push(2);
+   function getWinner() {
+      var gameOver = false;
+      if  ((tc.ttt.board[0].marker === tc.ttt.board[1].marker ) &&
+           (tc.ttt.board[0].marker === tc.ttt.board[2].marker ) &&
+           (tc.ttt.board[0].marker !== '') ) {
+          tc.ttt.board[0].winningCell = true;
+          tc.ttt.board[1].winningCell = true;
+          tc.ttt.board[2].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
         }
       else if 
-         ((tc.gameBoard[3].marker === tc.gameBoard[4].marker ) &&
-           (tc.gameBoard[3].marker === tc.gameBoard[5].marker )  &&
-           (tc.gameBoard[3].marker !== '') ) {
-          tc.winningCells.push(3);
-          tc.winningCells.push(4);
-          tc.winningCells.push(5);
+         ((tc.ttt.board[3].marker === tc.ttt.board[4].marker ) &&
+          (tc.ttt.board[3].marker === tc.ttt.board[5].marker ) &&
+          (tc.ttt.board[3].marker !== '') ) {
+          tc.ttt.board[3].winningCell = true;
+          tc.ttt.board[4].winningCell = true;
+          tc.ttt.board[5].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
          }
       else if   
-         ((tc.gameBoard[6].marker === tc.gameBoard[7].marker ) &&
-          (tc.gameBoard[6].marker === tc.gameBoard[8].marker )  &&
-          (tc.gameBoard[6].marker !== '' ) ) {
-          tc.winningCells.push(6);
-          tc.winningCells.push(7);
-          tc.winningCells.push(8);
+         ((tc.ttt.board[6].marker === tc.ttt.board[7].marker ) &&
+          (tc.ttt.board[6].marker === tc.ttt.board[8].marker )  &&
+          (tc.ttt.board[6].marker !== '' ) ) {
+          tc.ttt.board[6].winningCell = true;
+          tc.ttt.board[7].winningCell = true;
+          tc.ttt.board[8].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
          }
       else if 
-         ( (tc.gameBoard[0].marker === tc.gameBoard[3].marker ) &&
-           (tc.gameBoard[0].marker === tc.gameBoard[6].marker ) &&
-           (tc.gameBoard[0].marker !== '' ) ) {
-          tc.winningCells.push(0);
-          tc.winningCells.push(3);
-          tc.winningCells.push(6);
-        }
+         ((tc.ttt.board[0].marker === tc.ttt.board[3].marker ) &&
+          (tc.ttt.board[0].marker === tc.ttt.board[6].marker ) &&
+          (tc.ttt.board[0].marker !== '') ) {
+          tc.ttt.board[0].winningCell = true;
+          tc.ttt.board[3].winningCell = true;
+          tc.ttt.board[6].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
+         }
       else if 
-         ((tc.gameBoard[1].marker === tc.gameBoard[4].marker ) &&
-          (tc.gameBoard[1].marker === tc.gameBoard[7].marker )  &&
-          (tc.gameBoard[1].marker !== '' ) ) {
-          tc.winningCells.push(1);
-          tc.winningCells.push(4);
-          tc.winningCells.push(7);
+         ((tc.ttt.board[1].marker === tc.ttt.board[4].marker ) &&
+          (tc.ttt.board[1].marker === tc.ttt.board[7].marker ) &&
+          (tc.ttt.board[1].marker !== '') ) {
+          tc.ttt.board[1].winningCell = true;
+          tc.ttt.board[4].winningCell = true;
+          tc.ttt.board[7].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
          }
       else if   
-         ((tc.gameBoard[2].marker === tc.gameBoard[5].marker ) &&
-          (tc.gameBoard[2].marker === tc.gameBoard[8].marker ) &&
-          (tc.gameBoard[2].marker !== '' ) ) {
-          tc.winningCells.push(2);
-          tc.winningCells.push(5);
-          tc.winningCells.push(8);
-         }
+         ((tc.ttt.board[2].marker === tc.ttt.board[5].marker ) &&
+          (tc.ttt.board[2].marker === tc.ttt.board[8].marker ) &&
+          (tc.ttt.board[2].marker !== '') ) {
+          tc.ttt.board[2].winningCell = true;
+          tc.ttt.board[5].winningCell = true;
+          tc.ttt.board[8].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
+         } 
       else if 
-         ((tc.gameBoard[0].marker === tc.gameBoard[4].marker ) &&
-          (tc.gameBoard[0].marker === tc.gameBoard[8].marker )  &&
-          (tc.gameBoard[0].marker !== '' ) ) {
-          tc.winningCells.push(0);
-          tc.winningCells.push(4);
-          tc.winningCells.push(8);
+         ((tc.ttt.board[0].marker === tc.ttt.board[4].marker ) &&
+          (tc.ttt.board[0].marker === tc.ttt.board[8].marker ) &&
+          (tc.ttt.board[0].marker !== '') ) {
+          tc.ttt.board[0].winningCell = true;
+          tc.ttt.board[4].winningCell = true;
+          tc.ttt.board[8].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
          }
       else if   
-         ((tc.gameBoard[2].marker === tc.gameBoard[4].marker ) &&
-          (tc.gameBoard[2].marker === tc.gameBoard[6].marker )  &&
-          (tc.gameBoard[2].marker !== '' ) ) {
-          tc.winningCells.push(2);
-          tc.winningCells.push(4);
-          tc.winningCells.push(6);
+         ((tc.ttt.board[2].marker === tc.ttt.board[4].marker ) &&
+          (tc.ttt.board[2].marker === tc.ttt.board[6].marker ) &&
+          (tc.ttt.board[2].marker !== '') ) {
+          tc.ttt.board[2].winningCell = true;
+          tc.ttt.board[4].winningCell = true;
+          tc.ttt.board[6].winningCell = true;
+          tc.ttt.$save(tc.ttt.board);
+          gameOver = true;
          }
 
+       if (gameOver) {
+          tc.ttt.game[0].winner = currentPlayer.name;
+          tc.ttt.$save(tc.ttt.game);
 
+          return currentPlayer.name;
+       }
+       else if (isGameTie())
+          return 'Tie'; // game is tied
+       else 
+          return  '';
+ 
         // // check row
         // for (var i=0; i < tc.dimention; i++) {
         //    tc.winningCells = winnerInRow(tc.scoreBoard,i);
@@ -515,14 +445,6 @@
         // // Check diagonal from right top to left bottom 
         // if (tc.winningCells.length === 0) 
         //   tc.winningCells = winnerInDiag2(tc.scoreBoard);
-
-        if (tc.winningCells.length > 0) {
-          
-            return currentPlayer.name; 
-        }
-        else if ((tc.winningCells.length === 0) && (isGameTie()))
-          return 'Tie'; // game is tied
-        else return ''; // no winner yet
     }
 
 

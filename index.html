@@ -22,21 +22,22 @@
     <tr>
       <td class="left">
         <div>  
-         <form  class="player1"  ng-submit="t.updatePlayer(1, t.ttt.player1[0].name, t.ttt.player1[0].image)"> 
-            User Name:  <input class="font14" type="text" ng-model="t.ttt.player1[0].name" placeholder={{t.ttt.player1[0].name}}><br><br>
+         <form  class="player1" ng-submit="t.updatePlayer(1, t.ttt.player1.name, t.ttt.player1.image)"> 
+
+            User Name:  <input class="font14" type="text" ng-model="t.ttt.player1.name" placeholder={{t.ttt.player1.name}}><br><br>
             
-            Select your image: <input class="font12" type="file" ng-model="t.ttt.player1[0].image" placeholder={{t.ttt.player1[0].image}} >
-            
+            Select your image: <input class="font12" type="file" ng-model="t.ttt.player1.image" >{{t.ttt.player1.image}}
+
           </form>
        </div>
   
         <ul class="player font3D boxShadow">
-          <li>{{t.ttt.player1[0].name}}</li><br><li>{{t.ttt.player1[0].score}}</li>
+          <li>{{t.ttt.player1.name}}</li><br><li>{{t.ttt.player1.score}}</li>
         </ul>
       </td>
       <td class="main" >
-<!--           <table><tr><td class="gameInfo">{{tc.gameIdInfo}}</td><td class="gameID"> {{tc.gameId}}</tr></table>
- -->      <table class="boxes">
+
+      <table class="boxes">
             <tr>
             <td class="box boxShadow"  ng-repeat="cell in t.ttt.board track by $index" >
               <div class="boxImg" ng-click="t.selectCell($index)" > 
@@ -70,12 +71,12 @@
             </tr> 
             <tr>
               <td class="message fontShadow">
-                <div class = "blinker" >{{t.ttt.game[0].message}}</div>
+                <div class = "blinker" >{{t.ttt.game.message}}</div>
               </td>
             </tr>
            <tr>
               <td class="gameID">
-                <div class = "font16" >Game ID: {{t.ttt.game[0].gameId}}</div>
+                <div class = "font16" >Game ID: {{t.ttt.game.gameId}}</div>
               </td>
             </tr>
 
@@ -84,15 +85,14 @@
 
       <td class="right">
         <div>
-          <form  class="player2 " ng-submit="t.updatePlayer(2, t.ttt.player2[0].name, t.ttt.player2[0].image)">
-            User Name:  <input class="font14" type="text" ng-model="t.ttt.player2[0].name" placeholder={{t.ttt.player2[0].name}}><br><br>
-            
-            Select your image: <input class="font12" type="file" ng-model="t.ttt.player2[0].image"  placeholder={{t.ttt.player2[0].image}} >
+          <form  class="player2 " ng-submit="t.updatePlayer(2, t.ttt.player2.name, t.ttt.player2.image)">
+            User Name:  <input class="font14" type="text" ng-model="t.ttt.player2.name" placeholder={{t.ttt.player2.name}}><br><br>
+            Select your image: <input class="font12" type="file" ng-model="t.ttt.player2.image" >{{t.ttt.player2.image}}
             
           </form>
         </div>
           <ul class="player font3D boxShadow">
-            <li>{{t.ttt.player2[0].name}}</li><br><li>{{t.ttt.player2[0].score}}</li>
+            <li>{{t.ttt.player2.name}}</li><br><li>{{t.ttt.player2.score}}</li>
           </ul>
       </td>
     </tr>

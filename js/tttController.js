@@ -50,7 +50,7 @@
       // ---------------------------------------------- 
       function newGame() {
         // Use the gameId to join game
-        tc.gameId = Math.floor(Math.random() * 10 );  
+        tc.gameId = Math.floor(Math.random() * 1000 );  
         
         initializeGame(name1,image1,score1,name2,image2,score2); // pointer to the game board
         

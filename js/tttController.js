@@ -126,7 +126,7 @@
             tc.ttt.game.currentPlayerNum = tc.selfPlayer;  
          }
          // perform only if winner is not found yet
-         if (!tc.ttt.game.winner) {
+         if (!tc.gameOver) {
             if (emptyCell($index)) {   // check if the cell has not been marked
                 markCell ($index);   // mark the board with current player's image
                 tc.ttt.game.winner = getWinner();  // determine winner
